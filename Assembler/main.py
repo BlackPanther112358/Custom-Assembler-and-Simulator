@@ -72,14 +72,21 @@ def check_syntax(type:str, args:list)->bool:
         return True
     return False
 
+# FIX : Use first iteration to detect variables and labels, and then check the rest.
 def take_input()->list:
     inpt = input_instructions()
     inpt_var = True
+    halt_obs = False
     for line in inpt:
+        if halt_obs:
+            errors['Halt instruction not at the end'] = True
+            halt_obs = False
         args = line.split()
         if(len(args) == 0):
             continue
         if(args[0] == 'var'):
+            if inpt_var is False:
+                errors['General Syntax Error'] = True
             if(len(args) != 2):
                 errors['General Syntax Error'] = True
             else:
@@ -88,6 +95,7 @@ def take_input()->list:
         elif(args[0][-1] == ':'):
             labels.append(args[0][:-1])
             args = args[1::]
+        inpt_var = False
         if(len(args) == 0):
             errors['General Syntax Error'] = True
             continue
@@ -106,8 +114,9 @@ def take_input()->list:
                 else:
                     check_syntax('C', args)
         if type == 'F':
-            pass
-            #Complete this
+            halt_obs = True
+    if not(halt_obs) and not(errors['Halt instruction not at the end']):
+        errors['Missing halt instruction'] = True
     if(True in errors.values()):
         raise Exception(
             [Exception(i) for i in errors if errors[i]]
