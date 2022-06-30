@@ -1,23 +1,17 @@
-def take_input()->str:
+def take_input()->list:
     return
 
-def convert(inpt:str)->str:
+def convert(inpt:list)->list:
     return 
 
-def output(ans):
+def output(ans:list):
     return
 
 def main():
-    ans = []
-    while True:
-        inpt = take_input()
-        if inpt is False:
-            raise Exception("Error")
-        bitcode = convert(inpt)
-        ans.append(bitcode)
-        if inpt == 'hlt':
-            break
+    ans = take_input()
+    ans = convert(ans)
     output(ans)
 
 if '__name__' == '__main__':
     main()
+
