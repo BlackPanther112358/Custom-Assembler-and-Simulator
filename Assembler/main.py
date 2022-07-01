@@ -4,7 +4,7 @@ errors = {'Undefined variable' : False, 'Invalid Register address' : False, 'Inv
 vars = []
 labels = []
 
-def input_instructions()->list:
+def input_instructions()->list:     #Function to take input from termimal
     lines = []
     while True:
         try:
@@ -16,7 +16,7 @@ def input_instructions()->list:
             break
     return
 
-def process_var_lab(inpt:list)->list:
+def process_var_lab(inpt:list)->list:   #Function to scan input for variables and labels and store them
     inpt_var = True
     ret_list = []
     for line in inpt:
@@ -41,7 +41,7 @@ def process_var_lab(inpt:list)->list:
         ret_list.append(' '.join(args))
     return ret_list
 
-def check_syntax(type:str, args:list)->bool:
+def check_syntax(type:str, args:list)->bool:    #Function to check the syntax of each incidividual line, with its type (A ... F)
     inst = args[0]
     args = args[1::]
     if(len(args) != len(syntax[type])):
@@ -97,10 +97,10 @@ def check_syntax(type:str, args:list)->bool:
         return True
     return False
 
-def take_input()->list:
+def take_input()->list:         #Function to take input and check for any possible errors
     inpt = input_instructions()
     inpt = process_var_lab(inpt)
-    halt_obs = False
+    halt_obs = False            #checks if halt command has been encountered
     for line in inpt:
         if halt_obs:
             errors['Halt instruction not at the end'] = True
@@ -109,7 +109,7 @@ def take_input()->list:
         if(args[0] not in ISA):
             errors['Invalid Instruction'] = True
             continue
-        pos_types = ISA[args[0]]
+        pos_types = ISA[args[0]]    #Fetches the possibles types of instrctions for the command (mov has 2 possible)
         if len(pos_types) == 1:
             check_syntax(pos_types[0], args)
         else:
@@ -124,7 +124,7 @@ def take_input()->list:
             halt_obs = True
     if not(halt_obs) and not(errors['Halt instruction not at the end']):
         errors['Missing halt instruction'] = True
-    if(True in errors.values()):
+    if(True in errors.values()):    #Raises exception with all the errors detected
         raise Exception(
             [Exception(i) for i in errors if errors[i]]
         )
@@ -143,4 +143,3 @@ def main():
 
 if '__name__' == '__main__':
     main()
-
