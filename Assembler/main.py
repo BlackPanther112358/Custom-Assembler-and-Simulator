@@ -16,6 +16,31 @@ def input_instructions()->list:
             break
     return
 
+def process_var_lab(inpt:list)->list:
+    inpt_var = True
+    ret_list = []
+    for line in inpt:
+        args = line.split()
+        if(len(args) == 0):
+            continue
+        if(args[0] == 'var'):
+            if inpt_var is False:
+                errors['General Syntax Error'] = True
+            if(len(args) != 2):
+                errors['General Syntax Error'] = True
+            else:
+                vars.append(args[1])
+            continue
+        elif(args[0][-1] == ':'):
+            labels.append(args[0][:-1])
+            args = args[1::]
+        inpt_var = False
+        if(len(args) == 0):
+            errors['General Syntax Error'] = True
+            continue
+        ret_list.append(' '.join(args))
+    return ret_list
+
 def check_syntax(type:str, args:list)->bool:
     inst = args[0]
     args = args[1::]
@@ -72,33 +97,15 @@ def check_syntax(type:str, args:list)->bool:
         return True
     return False
 
-# FIX : Use first iteration to detect variables and labels, and then check the rest.
 def take_input()->list:
     inpt = input_instructions()
-    inpt_var = True
+    inpt = process_var_lab(inpt)
     halt_obs = False
     for line in inpt:
         if halt_obs:
             errors['Halt instruction not at the end'] = True
             halt_obs = False
         args = line.split()
-        if(len(args) == 0):
-            continue
-        if(args[0] == 'var'):
-            if inpt_var is False:
-                errors['General Syntax Error'] = True
-            if(len(args) != 2):
-                errors['General Syntax Error'] = True
-            else:
-                vars.append(args[1])
-            continue
-        elif(args[0][-1] == ':'):
-            labels.append(args[0][:-1])
-            args = args[1::]
-        inpt_var = False
-        if(len(args) == 0):
-            errors['General Syntax Error'] = True
-            continue
         if(args[0] not in ISA):
             errors['Invalid Instruction'] = True
             continue
