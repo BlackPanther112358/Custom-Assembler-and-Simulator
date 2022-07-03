@@ -152,5 +152,4 @@ def main():
     ans = convert(ans)
     output(ans)
 
-if '__name__' == '__main__':
-    main()
+main()
