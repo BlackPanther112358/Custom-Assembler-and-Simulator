@@ -1,6 +1,6 @@
 ISA = {'add' : ['A'], 'sub' : ['A'], 'mov' : ['B', 'C'], 'ld' : ['D'], 'st' : ['D'], 'mul' : ['A'], 'div' : ['C'], 'ls' : ['B'], 'rs' : ['B'], 'or' : ['A'], 'xor' : ['A'], 'and' : ['A'], 'not' : ['C'], 'cmp' : ['C'], 'jmp' : ['E'], 'jgt' : ['E'], 'jlt' : ['E'], 'je' : ['E'], 'hlt' : ['F']}
 syntax = {'A' : ['reg', 'reg', 'reg'], 'B' : ['reg', 'imm'], 'C' : ['reg', 'reg'], 'D' : ['reg', 'mem'], 'E' : ['mem'], 'F' : []}
-errors = {'Undefined variable' : False, 'Invalid Register address' : False, 'Invalid Instruction' : False, 'Undefined label' : False, 'Invalid operation on FLAG register' : False, 'Invalid immediate value' : False, 'Cannot use label as variable' : False, 'Cannot use variable as label' : False, 'Variables not declared' : False, 'Missing halt instruction' : False, 'Halt instruction not at the end' : False, 'General Syntax Error' : False}
+errors = {'Undefined variable' : False, 'Invalid Register address' : False, 'Invalid Instruction' : False, 'Undefined label' : False, 'Invalid operation on FLAG register' : False, 'Invalid immediate value' : False, 'Cannot use label as variable' : False, 'Cannot use variable as label' : False, 'Variables not declared' : False, 'Missing halt instruction' : False, 'Halt instruction not at the end' : False, 'General Syntax Error' : False, 'Memory overflow' : False}
 vars = []
 labels = []
 
@@ -14,7 +14,7 @@ def input_instructions()->list:     #Function to take input from termimal
             lines.append(inpt)
         except Exception:
             break
-    return
+    return lines
 
 def process_var_lab(inpt:list)->list:   #Function to scan input for variables and labels and store them
     inpt_var = True
@@ -60,7 +60,7 @@ def check_syntax(type:str, args:list)->bool:    #Function to check the syntax of
             else:
                 if len(args[i]) == 2:
                     try:
-                        if (args[0] == 'R') and (int(args[1]) in range(0, 7)):
+                        if (args[i][0] == 'R') and (int(args[i][1]) in range(0, 7)):
                             pass
                         else:
                             errors['Invalid Register address'] = True
@@ -87,19 +87,29 @@ def check_syntax(type:str, args:list)->bool:    #Function to check the syntax of
         else:
             if type == 'D':
                 if args[i] not in vars:
-                    errors['Undefined variable'] = True
-                    check = False
+                    if(args[i] in labels):
+                        errors['Cannot use label as variable'] = True
+                        check = False
+                    else:
+                        errors['Undefined variable'] = True
+                        check = False
             else:
                 if args[i] not in labels:
-                    errors['Undefined label'] = True
-                    check = False
+                    if(args[i] in vars):
+                        errors['Cannot use variable as label'] = True
+                        check = False
+                    else:
+                        errors['Undefined label'] = True
+                        check = False
     if check:
         return True
     return False
 
 def take_input()->list:         #Function to take input and check for any possible errors
-    inpt = input_instructions()
-    inpt = process_var_lab(inpt)
+    raw_inpt = input_instructions()
+    if len(raw_inpt) > 256:
+        errors['Memory overflow'] = True
+    inpt = process_var_lab(raw_inpt)
     halt_obs = False            #checks if halt command has been encountered
     for line in inpt:
         if halt_obs:
@@ -120,7 +130,7 @@ def take_input()->list:         #Function to take input and check for any possib
                     check_syntax('B', args)
                 else:
                     check_syntax('C', args)
-        if type == 'F':
+        if pos_types[0] == 'F':
             halt_obs = True
     if not(halt_obs) and not(errors['Halt instruction not at the end']):
         errors['Missing halt instruction'] = True
@@ -128,13 +138,14 @@ def take_input()->list:         #Function to take input and check for any possib
         raise Exception(
             [Exception(i) for i in errors if errors[i]]
         )
-    return inpt
+    return raw_inpt
 
 def convert(inpt:list)->list:
     return 
 
 def output(ans:list):
-    return
+    for line in ans:
+        print(line)
 
 def main():
     ans = take_input()
