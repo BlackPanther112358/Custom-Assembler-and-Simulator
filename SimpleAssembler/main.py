@@ -32,8 +32,11 @@ def process_var_lab(inpt:list)->list:   #Function to scan input for variables an
                 vars.append(args[1])
             continue
         elif(args[0][-1] == ':'):
-            labels.append(args[0][:-1])
-            args = args[1::]
+            if(len(args[0]) == 1):
+                errors['General Syntax Error'] = True
+            else:
+                labels.append(args[0][:-1])
+                args = args[1::]
         inpt_var = False
         if(len(args) == 0):
             errors['General Syntax Error'] = True
