@@ -1,5 +1,0 @@
-var x
-mov reg0 $10
-mov reg1 $20
-add reg0 reg1 x
-hlt
