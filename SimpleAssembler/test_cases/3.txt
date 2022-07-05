@@ -1,0 +1,13 @@
+var x
+mov reg0 $128
+mov reg1 $1
+mov reg2 $0
+loop: rs reg0 1
+cmp reg0 reg1
+je exit_true
+jgt loop
+jlt exit_false
+exit_true: st x reg1
+hlt
+exit_false: st x reg2
+hlt
