@@ -55,7 +55,7 @@ def check_syntax(type:str, args:list)->bool:    #Function to check the syntax of
     for i in range(len(args)):
         if syn[i] == 'reg':
             if args[i] == "FLAGS":
-                if (inst == 'mov') and (i == 1):
+                if (inst == 'mov') and (i == 0):
                     pass
                 else:
                     errors['Invalid operation on FLAG register'] = True
