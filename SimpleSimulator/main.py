@@ -28,6 +28,16 @@ def typeE(op:str, mem_addr:int):
     return
 
 def load_memory():
+    for i in range(256):
+        try:
+            inpt = input()
+            if inpt == '':
+                continue
+            mem[i] = int(inpt, 2)
+        except EOFError:
+            break
+        except Exception:
+            break
     return
 
 def process_inst(inst:int):
