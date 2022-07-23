@@ -63,7 +63,9 @@ def update_cycledata(pc:int):  #For q4
     return
 
 def plot_scatter():
-
+    plt.ylabel('Cycle No.')
+    plt.scatter(trace, [i for i in range(len(trace))])
+    plt.show()
     return
 
 def main():
