@@ -1,9 +1,12 @@
+import matplotlib.pyplot as plt
+
 mem = [0 for i in range(256)]
 opcodes = {}
 types = {}
 register = [0 for i in range(8)]
 pc = -1
 halted = False
+trace = []
 # reverse these
 A={"add":"10000", "sub":"10001", "mul":"10110", "xor":"11010","or":"11011", "and":"11100", "addf":"00000", "subf":"00001"}
 B={'10010': 'mov', '11000': 'rs', '11001': 'ls', '00010': 'movf'}
@@ -43,13 +46,24 @@ def load_memory():
 def process_inst(inst:int):
     return
 
-def out_state():
+def out_state(pc:int):
+    print(pc, end = ' ')
+    for reg in register:
+        print(bin(reg)[2::], end = ' ')
+    print()
     return
 
 def out_mem():
+    for line in mem:
+        print(bin(line)[2::])
     return
 
-def update_metadata():  #For q4
+def update_cycledata(pc:int):  #For q4
+    trace.append(pc)
+    return
+
+def plot_scatter():
+
     return
 
 def main():
@@ -58,9 +72,10 @@ def main():
         pc += 1
         inst = mem[pc]
         process_inst(inst)
-        out_state()
-        update_metadata()
+        out_state(pc)
+        update_cycledata(pc)
     out_mem()
+    plot_scatter()
     return
 
 main()
