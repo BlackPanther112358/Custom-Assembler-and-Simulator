@@ -28,3 +28,9 @@ def inpt_mem()->int:
             continue
     print('Program terminated due to multiple incorrect inputs')
     return -1
+
+def first_ques()->None:
+    return
+
+def second_ques()->None:
+    return
