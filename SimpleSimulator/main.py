@@ -62,17 +62,27 @@ def typeA(op:str, r1:str, r2:str, r3:str):
     #XOR
     elif(op == "11010"):
         reset()
-        register[val3] = register[val2] ^ register[val1]
+        for i in range(16):
+            if register[val1]&(1<<i) ^ register[val2]&(1<<i):
+                register[val3] |=(1<<i)
+            elif val3 &(1<<i):
+                register[val3] ^=(1<<i)
 
     #OR
     elif(op == "11011"):
         reset()
-        register[val3] = register[val2] | register[val1]
+        register[val3] = 0
+        for i in range(16):
+            if register[val1]&(1<<i) | register[val2]&(1<<i):
+                register[val3] |= (1<<i)
 
     #AND
     elif(op == "11100"):
         reset()
-        register[val3] = register[val2] & register[val1]
+        register[val3] = 0
+        for i in range(16):
+            if register[val1]&(1<<i) & register[val2]&(1<<i):
+                register[val3] |= (1<<i)
   
 def typeB(op:str, r1:str, imm:str):
     
@@ -135,11 +145,13 @@ def typeD(op:str, r1:str, mem_addr:str):
     val1 = int(r1, 2)
     val_mem = int(mem_addr, 2)
 
+    #load
     if(op == "10100"):
         reset()
         register[val1] = mem[val_mem]
         return
 
+    #store
     elif(op == "10101"):
         reset()
         mem[val_mem] = register[val1]
