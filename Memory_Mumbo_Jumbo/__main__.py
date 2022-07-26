@@ -1,3 +1,4 @@
+from operator import add
 import platform
 
 mem_size: int
@@ -30,7 +31,7 @@ def inpt_option(poss:int)->int:
     while try_cnt < 3:
         try_cnt += 1
         try:
-            inpt = int(input('Please choose an option: '))
+            inpt = int(input('Enter an option: '))
             if inpt in range(1, poss + 1):
                 return inpt
             print('Please enter a valid option')
@@ -82,16 +83,10 @@ def inpt_add_type()->str:
     print('Program terminated due to multiple incorrect inputs') 
     return 'Invalid'
 
-def first_ques()->None:
-    """Function to handle first question"""
-    inst_size = inpt_int()
-    if inst_size == -1:
-        return
-    reg_size = inpt_int()
-    if reg_size == -1:
-        return
+def calculate_add_size(curr_add_type:str)->int:
+    """Calculates the address pins required to represent the memory"""
     add_cnt: int = mem_size
-    match add_cnt:
+    match curr_add_type:
         case 'byte':
             add_cnt = (add_cnt + byte_size - 1)//byte_size
         case 'nibble':
@@ -101,6 +96,17 @@ def first_ques()->None:
     add_size: int = 0
     while((1<<add_size) < add_cnt):
         add_size += 1
+    return add_size
+
+def first_ques()->None:
+    """Function to handle first question"""
+    inst_size = inpt_int()
+    if inst_size == -1:
+        return
+    reg_size = inpt_int()
+    if reg_size == -1:
+        return
+    add_size = calculate_add_size(add_type)
     if (add_size + reg_size) > inst_size:
         print('Length of instruction too small')
         return
@@ -114,6 +120,46 @@ def first_ques()->None:
 
 def second_ques()->None:
     """Function to handle second question"""
+    print('Please enter whether the query is of type 1 or type 2:')
+    query_type: int = inpt_option(2)
+    if query_type == -1:
+        return
+    elif query_type == 1:
+        print('Enter how many bits CPU is: ')
+        word_size = inpt_int()
+        if word_size == -1:
+            return
+        new_add_type = inpt_add_type()
+        if new_add_type == 'Invalid':
+            return
+        old_add_size:int = calculate_add_size(add_type)
+        new_add_size:int = calculate_add_size(new_add_type)
+        print(f"The change in the number of address pins required is {old_add_size - new_add_size}")
+    else:
+        print('Enter how many bits CPU is: ')
+        word_size = inpt_int()
+        if word_size == -1:
+            return
+        print('Please enter the number of address pins: ')
+        add_pins:int = inpt_int()
+        if add_pins == -1:
+            return
+        print('Please enter type of addressable memory: ')
+        add_type = inpt_add_type()
+        if add_type == 'Invalid':
+            return
+        if add_pins < 3:
+            print(f'Total output is {(1<<add_pins)} bits')
+        else:
+            add_pins -= 3
+            suffix:str = 'B'
+            convert_arr:list[int, str] = sorted([[conversions[key], key] for key in conversions.keys()], reverse=True)
+            itr:int = 0
+            while add_pins < convert_arr[itr][0]: 
+                itr += 1
+            add_pins -= convert_arr[itr][0]
+            suffix = convert_arr[itr][1] + suffix
+            print(f"The total memory available is {(1<<add_pins)} {suffix}")
     return
 
 def main()->None:
