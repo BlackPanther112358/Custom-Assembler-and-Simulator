@@ -1,14 +1,10 @@
-from operator import add
 import platform
-
-mem_size: int
-add_type: str
 
 nibble_size: int = 4
 byte_size: int = 8
 word_size: int = int(platform.architecture()[0][:-3])
 
-conversions: dict = {'':0, 'da':1, 'h':2, 'k':3, 'M':6, 'G':9, 'T':12, 'P':15, 'E':18}
+conversions: dict = {'':0, 'k':10, 'M':20, 'G':30, 'T':40, 'P':50, 'E':60}
 
 def inpt_int()->int:
     """Function to take input integer"""
@@ -59,7 +55,7 @@ def inpt_mem()->int:
             unit = unit[:-1]
             if unit not in conversions:
                 print('Invalid prefix entered')
-            val *= pow(10, conversions[unit])
+            val *= pow(2, conversions[unit])
             return val
         except:
             print('Invalid input entered')
@@ -83,7 +79,7 @@ def inpt_add_type()->str:
     print('Program terminated due to multiple incorrect inputs') 
     return 'Invalid'
 
-def calculate_add_size(curr_add_type:str)->int:
+def calculate_add_size(mem_size:int, curr_add_type:str, word_size:int = word_size)->int:
     """Calculates the address pins required to represent the memory"""
     add_cnt: int = mem_size
     match curr_add_type:
@@ -98,7 +94,7 @@ def calculate_add_size(curr_add_type:str)->int:
         add_size += 1
     return add_size
 
-def first_ques()->None:
+def first_ques(mem_size:int, add_type:str)->None:
     """Function to handle first question"""
     inst_size = inpt_int()
     if inst_size == -1:
@@ -106,7 +102,7 @@ def first_ques()->None:
     reg_size = inpt_int()
     if reg_size == -1:
         return
-    add_size = calculate_add_size(add_type)
+    add_size = calculate_add_size(mem_size, add_type)
     if (add_size + reg_size) > inst_size:
         print('Length of instruction too small')
         return
@@ -118,7 +114,7 @@ def first_ques()->None:
     print(f"Number of registers supported by the ISA is {(1<<reg_size)}")    
     return
 
-def second_ques()->None:
+def second_ques(mem_size:int, add_type:str)->None:
     """Function to handle second question"""
     print('Please enter whether the query is of type 1 or type 2:')
     query_type: int = inpt_option(2)
@@ -132,23 +128,35 @@ def second_ques()->None:
         new_add_type = inpt_add_type()
         if new_add_type == 'Invalid':
             return
-        old_add_size:int = calculate_add_size(add_type)
-        new_add_size:int = calculate_add_size(new_add_type)
-        print(f"The change in the number of address pins required is {old_add_size - new_add_size}")
+        old_add_type:str = add_type
+        old_add_size:int = calculate_add_size(mem_size, old_add_type, word_size)
+        new_add_size:int = calculate_add_size(mem_size, new_add_type, word_size)
+        print(f"The change in the number of address pins required is {new_add_size - old_add_size}")
     else:
         print('Enter how many bits CPU is: ')
         word_size = inpt_int()
         if word_size == -1:
             return
+        word_pins:int = 0
+        while (1<<word_pins) < word_size:
+            word_pins += 1
         print('Please enter the number of address pins: ')
         add_pins:int = inpt_int()
         if add_pins == -1:
             return
         print('Please enter type of addressable memory: ')
-        add_type = inpt_add_type()
-        if add_type == 'Invalid':
+        curr_add_type = inpt_add_type()
+        if curr_add_type == 'Invalid':
             return
+        match curr_add_type:
+            case 'byte':
+                add_pins += 3
+            case 'nibble':
+                add_pins += 2
+            case 'word':
+                add_pins += word_pins
         if add_pins < 3:
+            print()
             print(f'Total output is {(1<<add_pins)} bits')
         else:
             add_pins -= 3
@@ -159,16 +167,18 @@ def second_ques()->None:
                 itr += 1
             add_pins -= convert_arr[itr][0]
             suffix = convert_arr[itr][1] + suffix
+            print()
             print(f"The total memory available is {(1<<add_pins)} {suffix}")
+    print()
     return
 
 def main()->None:
     """Main Function to run the program"""
     print('Please enter the total memory of the system: ')
-    mem_size = inpt_mem()
+    mem_size:int = inpt_mem()
     if mem_size == -1:
         return
-    add_type = inpt_add_type()
+    add_type:str = inpt_add_type()
     if add_type == 'Invalid':
         return
     menu = ['Ques1 - ISA and length of instructions', 'Ques2 - System enhancement']
@@ -178,15 +188,15 @@ def main()->None:
         return
     for _ in range(itr):
         for cnt, option in enumerate(menu):
-            print(f"{cnt}: {option}")
+            print(f"{cnt + 1}: {option}")
         print('Enter an appropriate choice: ')
         chosen = inpt_option(len(menu))
         if chosen == -1:
             return
         elif chosen == 1:
-            first_ques()
+            first_ques(mem_size, add_type)
         else:
-            second_ques()
+            second_ques(mem_size, add_type)
     return
 
 if __name__ == '__main__':
