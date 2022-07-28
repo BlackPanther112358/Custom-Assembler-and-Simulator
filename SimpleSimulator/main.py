@@ -1,3 +1,4 @@
+import math
 import matplotlib.pyplot as plt
 
 mem = [0 for i in range(256)]
@@ -23,6 +24,53 @@ num = 0
 val = 0
 
 # FV(7) , FL(8) , FG(9) , FE(10) is flag register for overflow, less than, greater than, equal to
+
+def dec_2_bin(num:float)->str:
+    a=str(num)
+    before=""
+    after=""
+    flag=True
+    for i in a:
+        if(i=='.'):
+            flag=False
+        if(flag):
+            before+=i
+        else:
+            after+=i
+    if(flag):
+        return "0"
+    before=str(bin(int(before))[2::])
+    after=float(after)
+    temp=""
+    while(after!=0):
+        after*=2
+        temp+=str(int(after))
+        after=after-int(after)
+    if(len(before)>8 or before=="0" or len(before)-1+len(temp)>5):
+        return "0"
+    ans=""
+    x=len(bin(len(before)-1)[2::])
+    for i in range(3-x):
+        ans+="0"
+    ans+=bin(len(before)-1)[2::]+before[1::]+temp
+    for i in range(8-len(ans)):
+        ans+="0"
+    return ans
+
+def bin_2_dec(num:str)->float:
+    exp=int(num[:3:],2)
+    ans="1"
+    for i in range(exp):
+        if(3+i<8):
+            ans+=num[i+3]
+        else:
+            ans+="0"
+    ans=int(ans,2)
+    j=-1
+    for i in range(exp+3,8):
+        ans+=int(num[i])*math.pow(2,j)
+        j-=1
+    return ans
 
 def reset():
     register[7] = 0

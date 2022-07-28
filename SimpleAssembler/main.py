@@ -1,17 +1,68 @@
+import math
+
 ISA = {'add' : ['A'], 'sub' : ['A'], 'mov' : ['B', 'C'], 'ld' : ['D'], 'st' : ['D'], 'mul' : ['A'], 'div' : ['C'], 'ls' : ['B'], 'rs' : ['B'], 'or' : ['A'], 'xor' : ['A'], 'and' : ['A'], 'not' : ['C'], 'cmp' : ['C'], 'jmp' : ['E'], 'jgt' : ['E'], 'jlt' : ['E'], 'je' : ['E'], 'hlt' : ['F'], 'addf' : ['A'], 'subf' : ['A'], 'movf' : ['B']}
 syntax = {'A' : ['reg', 'reg', 'reg'], 'B' : ['reg', 'imm'], 'C' : ['reg', 'reg'], 'D' : ['reg', 'mem'], 'E' : ['mem'], 'F' : []}
 errors = {'Undefined variable' : [], 'Invalid Register address' : [], 'Invalid Instruction' : [], 'Undefined label' : [], 'Invalid operation on FLAG register' : [], 'Invalid immediate value' : [], 'Cannot use label as variable' : [], 'Cannot use variable as label' : [], 'Variables not declared' : [], 'Missing halt instruction' : [], 'Halt instruction not at the end' : [], 'General Syntax Error' : [], 'Memory overflow' : []}
 vars = []
 labels = []
 
-def input_instructions()->list:     #Function to take input from termimal
+def dec_2_bin(num:float)->str:
+    a=str(num)
+    before=""
+    after=""
+    flag=True
+    for i in a:
+        if(i=='.'):
+            flag=False
+        if(flag):
+            before+=i
+        else:
+            after+=i
+    if(flag):
+        return "0"
+    before=str(bin(int(before))[2::])
+    after=float(after)
+    temp=""
+    while(after!=0):
+        after*=2
+        temp+=str(int(after))
+        after=after-int(after)
+    if(len(before)>8 or before=="0" or len(before)-1+len(temp)>5):
+        return "0"
+    ans=""
+    x=len(bin(len(before)-1)[2::])
+    for i in range(3-x):
+        ans+="0"
+    ans+=bin(len(before)-1)[2::]+before[1::]+temp
+    for i in range(8-len(ans)):
+        ans+="0"
+    return ans
+
+def bin_2_dec(num:str)->float:
+    exp=int(num[:3:],2)
+    ans="1"
+    for i in range(exp):
+        if(3+i<8):
+            ans+=num[i+3]
+        else:
+            ans+="0"
+    ans=int(ans,2)
+    j=-1
+    for i in range(exp+3,8):
+        ans+=int(num[i])*math.pow(2,j)
+        j-=1
+    return ans
+
+def input_instructions()->list[int, str]:     #Function to take input from termimal
     lines = []
+    cnt:int = 1
     while True:
         try:
             inpt = input()
             if inpt == '':
                 continue
-            lines.append(inpt)
+            lines.append([cnt, inpt])
+            cnt += 1
         except Exception:
             break
     return lines
