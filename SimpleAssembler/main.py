@@ -67,35 +67,35 @@ def input_instructions()->list[int, str]:     #Function to take input from termi
             break
     return lines
 
-def process_var_lab(inpt:list)->list:   #Function to scan input for variables and labels and store them
+def process_var_lab(inpt:list[int, str])->list:   #Function to scan input for variables and labels and store them
     inpt_var = True
     ret_list = []
-    for line in inpt:
+    for num, line in inpt:
         args = line.split()
         if(len(args) == 0):
             continue
         if(args[0] == 'var'):
             if inpt_var is False:
-                errors['General Syntax Error'] = True
+                errors['General Syntax Error'].append(num)
             if(len(args) != 2):
-                errors['General Syntax Error'] = True
+                errors['General Syntax Error'].append(num)
             else:
                 vars.append(args[1])
             continue
         elif(args[0][-1] == ':'):
             if(len(args[0]) == 1):
-                errors['General Syntax Error'] = True
+                errors['General Syntax Error'].append(num)
             else:
                 labels.append(args[0][:-1])
                 args = args[1::]
         inpt_var = False
         if(len(args) == 0):
-            errors['General Syntax Error'] = True
+            errors['General Syntax Error'].append(num)
             continue
-        ret_list.append(' '.join(args))
+        ret_list.append([num, ' '.join(args)])
     return ret_list
 
-def check_syntax(type:str, args:list)->bool:    #Function to check the syntax of each incidividual line, with its type (A ... F)
+def check_syntax(num:int, type:str, args:list)->bool:    #Function to check the syntax of each incidividual line, with its type (A ... F)
     inst = args[0]
     args = args[1::]
     if(len(args) != len(syntax[type])):
@@ -109,7 +109,7 @@ def check_syntax(type:str, args:list)->bool:    #Function to check the syntax of
                 if (inst == 'mov') and (i == 0):
                     pass
                 else:
-                    errors['Invalid operation on FLAG register'] = True
+                    errors['Invalid operation on FLAG register'].append(num)
                     check = False
             else:
                 if len(args[i]) == 2:
@@ -117,43 +117,43 @@ def check_syntax(type:str, args:list)->bool:    #Function to check the syntax of
                         if (args[i][0] == 'R') and (int(args[i][1]) in range(0, 7)):
                             pass
                         else:
-                            errors['Invalid Register address'] = True
+                            errors['Invalid Register address'].append(num)
                             check = False
                     except Exception:
-                        errors['Invalid Register address'] = True
+                        errors['Invalid Register address'].append(num)
                         check = False
                 else:
-                    errors['Invalid Register address'] = True
+                    errors['Invalid Register address'].append(num)
                     check = False
         elif syn[i] == 'imm':
             if(args[i][0] != '$'):
-                errors['Invalid immediate value'] = True
+                errors['Invalid immediate value'].append(num)
                 check = False
             else:
                 try:
                     num = int(args[i][1::])
                     if num not in range(0, 256):
-                        errors['Invalid immediate value'] = True
+                        errors['Invalid immediate value'].append(num)
                         check = False
                 except Exception:
-                    errors['Invalid immediate value'] = True
+                    errors['Invalid immediate value'].append(num)
                     check = False
         else:
             if type == 'D':
                 if args[i] not in vars:
                     if(args[i] in labels):
-                        errors['Cannot use label as variable'] = True
+                        errors['Cannot use label as variable'].append(num)
                         check = False
                     else:
-                        errors['Undefined variable'] = True
+                        errors['Undefined variable'].append(num)
                         check = False
             else:
                 if args[i] not in labels:
                     if(args[i] in vars):
-                        errors['Cannot use variable as label'] = True
+                        errors['Cannot use variable as label'].append(num)
                         check = False
                     else:
-                        errors['Undefined label'] = True
+                        errors['Undefined label'].append(num)
                         check = False
     if check:
         return True
@@ -165,7 +165,7 @@ def take_input()->list:         #Function to take input and check for any possib
         errors['Memory overflow'] = True
     inpt = process_var_lab(raw_inpt)
     halt_obs = False            #checks if halt command has been encountered
-    for line in inpt:
+    for num, line in inpt:
         if halt_obs:
             errors['Halt instruction not at the end'] = True
             halt_obs = False
@@ -175,22 +175,31 @@ def take_input()->list:         #Function to take input and check for any possib
             continue
         pos_types = ISA[args[0]]    #Fetches the possibles types of instrctions for the command (mov has 2 possible)
         if len(pos_types) == 1:
-            check_syntax(pos_types[0], args)
+            check_syntax(num, pos_types[0], args)
         else:
             if len(args) != 3:
                 errors['General Syntax Error'] = True
             else:
                 if '$' in args[2]:
-                    check_syntax('B', args)
+                    check_syntax(num, 'B', args)
                 else:
-                    check_syntax('C', args)
+                    check_syntax(num, 'C', args)
         if pos_types[0] == 'F':
             halt_obs = True
     if not(halt_obs) and not(errors['Halt instruction not at the end']):
         errors['Missing halt instruction'] = True
-    if(True in errors.values()):    #Raises exception with all the errors detected
+    # if(True in errors.values()):    #Raises exception with all the errors detected
+    #     raise Exception(
+    #         [Exception(i) for i in errors if errors[i]]
+    #     )
+    if(sum(errors.values()) > 0):
+        exceptions = []
+        for error in errors:
+            if(errors[error] > 0):
+                for line in errors[error]:
+                    exceptions.append(f'{error} at line no. {line}')
         raise Exception(
-            [Exception(i) for i in errors if errors[i]]
+            exceptions
         )
     return raw_inpt
 
