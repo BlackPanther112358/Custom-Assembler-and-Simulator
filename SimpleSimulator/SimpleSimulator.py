@@ -143,27 +143,27 @@ def typeA(op:str, r1:str, r2:str, r3:str):
         reset()
         temp1=cust_bin(register[val1],8)
         temp2=cust_bin(register[val2],8)
-        x=dec_2_bin(bin_2_dec(temp1)+bin_2_dec(temp2))
-        if(int(x) > 252):
+        x = bin_2_dec(temp1)+bin_2_dec(temp2)
+        if(x > 252):
             register[7] |= (1 << 3)
             register[val3] = 255
-        elif(x=="0"):
-            register[val3]=0
+        elif(dec_2_bin(x) == '0'):
+            register[val3] = 0
             register[7] |= (1 << 3)
         else:
-            register[val3] = x
+            register[val3] = dec_2_bin(x)
 
     #SUBF
     elif(op == "00001"):
         reset()
         temp1=cust_bin(register[val1],8)
         temp2=cust_bin(register[val2],8)
-        x=dec_2_bin(bin_2_dec(temp2)-bin_2_dec(temp1))
+        x=dec_2_bin(bin_2_dec(temp2) - bin_2_dec(temp1))
         if(x=="0"):
-            register[val3]=0
+            register[val3] = 0
             register[7] |= (1 << 3)
         else:
-            register[val3]=x
+            register[val3] = x
         
 def typeB(op:str, r1:str, imm:str):
     
