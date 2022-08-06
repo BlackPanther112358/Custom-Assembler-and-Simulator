@@ -167,11 +167,11 @@ def take_input()->list:         #Function to take input and check for any possib
     halt_obs = False            #checks if halt command has been encountered
     for num, line in inpt:
         if halt_obs:
-            errors['Halt instruction not at the end'] = True
+            errors['Halt instruction not at the end'].append(num - 1)
             halt_obs = False
         args = line.split()
         if(args[0] not in ISA):
-            errors['Invalid Instruction'] = True
+            errors['Invalid Instruction'].append(num)
             continue
         pos_types = ISA[args[0]]    #Fetches the possibles types of instrctions for the command (mov has 2 possible)
         if len(pos_types) == 1:
