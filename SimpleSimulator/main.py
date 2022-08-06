@@ -12,6 +12,53 @@ halted = False
 trace = []
 
 
+def dec_2_bin(num:float)->str:
+    a=str(num)
+    before=""
+    after=""
+    flag=True
+    for i in a:
+        if(i=='.'):
+            flag=False
+        if(flag):
+            before+=i
+        else:
+            after+=i
+    if(flag):
+        return "0"
+    before=str(bin(int(before))[2::])
+    after=float(after)
+    temp=""
+    while(after!=0):
+        after*=2
+        temp+=str(int(after))
+        after=after-int(after)
+    if(len(before)>8 or before=="0" or len(before)-1+len(temp)>5):
+        return "0"
+    ans=""
+    x=len(bin(len(before)-1)[2::])
+    for i in range(3-x):
+        ans+="0"
+    ans+=bin(len(before)-1)[2::]+before[1::]+temp
+    for i in range(8-len(ans)):
+        ans+="0"
+    return ans
+    
+def bin_2_dec(num:str)->float:
+    exp=int(num[:3:],2)
+    ans="1"
+    for i in range(exp):
+        if(3+i<8):
+            ans+=num[i+3]
+        else:
+            ans+="0"
+    ans=int(ans,2)
+    j=-1
+    for i in range(exp+3,8):
+        ans+=int(num[i])*math.pow(2,j)
+        j-=1
+    return ans
+
 dictionary = {'10000': 'A', '10001': 'A', '10110': 'A', '11010': 'A', '11011': 'A','11100': 'A','00000': 'A', '00001': 'A','10010': 'B','11000': 'B','11001': 'B', '00010': 'B',  '10011': 'C', '10111': 'C', '11101': 'C', '11110': 'C', '10100': 'D', '10101': 'D','11111': 'E', '01100': 'E', '01101': 'E', '01111': 'E', '01010': 'F'}
 
 # flags = {"overflow": False, "Less than Flag": False, "Greater than flag": False,"Equal to flag": False}
@@ -52,7 +99,7 @@ def typeA(op:str, r1:str, r2:str, r3:str):
     #Subtract
     elif(op == "10001"):
         reset()
-        if val1 >= val2:
+        if register[val1] >= register[val2]:
             register[val3] = register[val2] - register[val1]
         else:
             register[val3] = 0  
@@ -90,11 +137,38 @@ def typeA(op:str, r1:str, r2:str, r3:str):
         for i in range(16):
             if register[val1]&(1<<i) & register[val2]&(1<<i):
                 register[val3] |= (1<<i)
-  
+
+    #ADDF
+    elif(op == "00000"):
+        reset()
+        temp1=cust_bin(register[val1],8)
+        temp2=cust_bin(register[val2],8)
+        x=dec_2_bin(bin_2_dec(temp1)+bin_2_dec(temp2))
+        if(x=="0"):
+            register[val3]=0
+            register[7] |= (1 << 3)
+        else:
+            register[val3]=x
+
+    #SUBF
+    elif(op == "00001"):
+        reset()
+        temp1=cust_bin(register[val1],8)
+        temp2=cust_bin(register[val2],8)
+        x=dec_2_bin(bin_2_dec(temp2)-bin_2_dec(temp1))
+        if(x=="0"):
+            register[val3]=0
+            register[7] |= (1 << 3)
+        else:
+            register[val3]=x
+
+
+
+        
 def typeB(op:str, r1:str, imm:str):
     
-    val1 = int(r1, 2)
-    imm = int(imm,  2)
+    val1 = int(r1,2)
+    imm = int(imm,2)
 
     #Mov
     if(op == "10010"):
@@ -110,6 +184,11 @@ def typeB(op:str, r1:str, imm:str):
     elif(op == "11000"):
         reset()
         register[val1] = val1 >> imm
+
+    #MOVF
+    elif(op=="00010"):
+        reset()
+        register[val1]=imm
 
 def typeC(op:str, r1:str, r2:str):
 
