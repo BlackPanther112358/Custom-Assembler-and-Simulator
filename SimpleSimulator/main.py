@@ -178,12 +178,12 @@ def typeB(op:str, r1:str, imm:str):
     #LeftShift
     elif(op == "11001"):
         reset()
-        register[val1] = val1 << imm
+        register[val1] = register[val1] << imm
 
     #RightShift
     elif(op == "11000"):
         reset()
-        register[val1] = val1 >> imm
+        register[val1] = register[val1] >> imm
 
     #MOVF
     elif(op=="00010"):
@@ -203,17 +203,14 @@ def typeC(op:str, r1:str, r2:str):
     #Divide
     elif(op == "10111"):
         reset()
-        register[0] = val1//val2
-        register[1] = val1%val2
+        register[0] = register[val1]//register[val2]
+        register[1] = register[val1]%register[val2]
 
     #Invert
     elif(op == "11101"):
-        temp = val2
+        register[val2] = register[val1]
         for i in range(16):
-            val2 ^= (1 << i)
-        
-        val1 = val2
-        val2 = temp      
+            register[val2] ^= (1 << i)
 
     #Compare
     elif(op == "11110"):
@@ -292,7 +289,7 @@ def process_inst(inst:int):
     mytype = dictionary[op]
     global halted
     if(mytype == 'A'):
-        typeA(op, k[10:13], k[13:16], k[7:10])
+        typeA(op, k[7:10], k[10:13], k[13:16])
 
     elif(mytype == 'B'):
         typeB(op, k[5:8], k[8:16])
@@ -300,8 +297,6 @@ def process_inst(inst:int):
     elif(mytype == 'C'):
         typeC(op, k[10:13], k[13:16])
     
-    #11110 00000 010 011
-
     elif(mytype == 'D'):
         typeD(op, k[5:8], k[8:16])
 
