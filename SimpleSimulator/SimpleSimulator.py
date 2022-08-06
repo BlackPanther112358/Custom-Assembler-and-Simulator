@@ -13,6 +13,8 @@ trace = []
 
 
 def dec_2_bin(num:float)->str:
+    if num < 0:
+        return '0'
     a=str(num)
     before=""
     after=""
