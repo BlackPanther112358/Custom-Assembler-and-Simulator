@@ -138,17 +138,20 @@ def typeA(op:str, r1:str, r2:str, r3:str):
             if register[val1]&(1<<i) & register[val2]&(1<<i):
                 register[val3] |= (1<<i)
 
-    #ADDF
+    #ADDF  
     elif(op == "00000"):
         reset()
         temp1=cust_bin(register[val1],8)
         temp2=cust_bin(register[val2],8)
         x=dec_2_bin(bin_2_dec(temp1)+bin_2_dec(temp2))
-        if(x=="0"):
+        if(int(x) > 252):
+            register[7] |= (1 << 3)
+            register[val3] = 255
+        elif(x=="0"):
             register[val3]=0
             register[7] |= (1 << 3)
         else:
-            register[val3]=x
+            register[val3] = x
 
     #SUBF
     elif(op == "00001"):
