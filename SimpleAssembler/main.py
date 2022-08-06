@@ -188,11 +188,7 @@ def take_input()->list:         #Function to take input and check for any possib
             halt_obs = True
     if not(halt_obs) and not(errors['Halt instruction not at the end']):
         errors['Missing halt instruction'] = True
-    # if(True in errors.values()):    #Raises exception with all the errors detected
-    #     raise Exception(
-    #         [Exception(i) for i in errors if errors[i]]
-    #     )
-    if(sum(errors.values()) > 0):
+    if(sum([len(errors[error]) for error in errors]) > 0):
         exceptions = []
         for error in errors:
             if(errors[error] > 0):
