@@ -45,17 +45,23 @@ def inpt_mem()->int:
             inpt = input('Enter the size of memory: ')
             val, unit = inpt.split()
             val = int(val)
-            if(unit[-1] == 'b'):
-                pass
-            elif(unit[-1] == 'B'):
-                val *= 8
+            pre = unit[0]
+            if pre in conversions:
+                unit = unit[1::]
             else:
-                print('Please enter value in bits or Bytes')
+                pre = ''
+            val *= pow(2, conversions[pre])
+            if (unit == 'b') or (unit.lower() == 'bit'):
+                pass
+            elif (unit == 'B') or (unit.lower() == 'byte'):
+                val *= 8
+            elif unit.lower() == 'word':
+                val *= word_size
+            elif unit.lower() == 'nibble':
+                val *= 4
+            else:
+                print('Invalid unit entered')
                 continue
-            unit = unit[:-1]
-            if unit not in conversions:
-                print('Invalid prefix entered')
-            val *= pow(2, conversions[unit])
             return val
         except:
             print('Invalid input entered')
