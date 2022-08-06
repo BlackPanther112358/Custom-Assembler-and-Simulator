@@ -7,8 +7,8 @@ vars = []
 labels = []
 
 def dec_2_bin(num:float)->str:
-    if num < 0:
-        return '0'
+    if(num<1 or num>252):
+      return "0"
     a=str(num)
     before=""
     after=""
@@ -29,7 +29,9 @@ def dec_2_bin(num:float)->str:
         after*=2
         temp+=str(int(after))
         after=after-int(after)
-    if(len(before)>8 or before=="0" or len(before)-1+len(temp)>5):
+    if(len(before)>8 or before=="0"):
+        return "0"
+    if(len(before)-1+len(temp)>5 and temp!=""):
         return "0"
     ans=""
     x=len(bin(len(before)-1)[2::])
@@ -38,7 +40,7 @@ def dec_2_bin(num:float)->str:
     ans+=bin(len(before)-1)[2::]+before[1::]+temp
     for i in range(8-len(ans)):
         ans+="0"
-    return ans
+    return ans[:8:]
 
 def bin_2_dec(num:str)->float:
     exp=int(num[:3:],2)
