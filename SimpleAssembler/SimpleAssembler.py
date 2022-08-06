@@ -131,10 +131,20 @@ def check_syntax(num:int, type:str, args:list)->bool:    #Function to check the 
                 check = False
             else:
                 try:
-                    num = int(args[i][1::])
-                    if num not in range(0, 256):
-                        errors['Invalid immediate value'].append(num)
-                        check = False
+                    if inst == 'movf':
+                        str_num = args[i][1::]
+                        if '.' not in str_num:
+                            errors['Invalid immediate value'].append(num)
+                            check = False
+                        val = dec_2_bin(float(str_num))
+                        if val == '0':
+                            errors['Invalid immediate value'].append(num)
+                            check = False
+                    else:
+                        num = int(args[i][1::])
+                        if num not in range(0, 256):
+                            errors['Invalid immediate value'].append(num)
+                            check = False
                 except Exception:
                     errors['Invalid immediate value'].append(num)
                     check = False
