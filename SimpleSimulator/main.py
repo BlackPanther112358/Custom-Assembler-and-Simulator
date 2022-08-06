@@ -119,7 +119,7 @@ def typeA(op:str, r1:str, r2:str, r3:str):
         for i in range(16):
             if register[val1]&(1<<i) ^ register[val2]&(1<<i):
                 register[val3] |=(1<<i)
-            elif val3 &(1<<i):
+            elif register[val3]&(1<<i):
                 register[val3] ^=(1<<i)
 
     #OR
