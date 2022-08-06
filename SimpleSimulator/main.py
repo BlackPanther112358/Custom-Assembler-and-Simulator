@@ -258,8 +258,7 @@ def main():
     # sys.stdout = open('output.txt', 'w')
     load_memory()
     #global halted
-    cnt = 0
-    while((not halted) and (cnt < 150)):
+    while(not halted):
         global pc
         global new_pc
         pc += 1
@@ -267,12 +266,9 @@ def main():
         process_inst(inst)
         out_state(pc)
         update_cycledata(pc)
-        cnt += 1
-
         if (new_pc != -1):
             pc = new_pc
             new_pc = -1
-
     out_mem()
     plot_scatter()
     return
