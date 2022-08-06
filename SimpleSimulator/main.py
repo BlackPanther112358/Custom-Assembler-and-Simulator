@@ -197,8 +197,8 @@ def typeC(op:str, r1:str, r2:str):
 
     #Mov Reg
     if(op == "10011"):
+        register[val2] = register[val1]
         reset()
-        register[val1] = register[val2]
 
     #Divide
     elif(op == "10111"):
@@ -305,6 +305,7 @@ def process_inst(inst:int):
 
     elif(op == '01010'):
         halted = True
+        reset()
 
 def out_state(pc:int):
     print(cust_bin(pc, 8), end = ' ')
