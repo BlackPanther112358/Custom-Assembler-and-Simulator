@@ -161,9 +161,6 @@ def typeA(op:str, r1:str, r2:str, r3:str):
             register[7] |= (1 << 3)
         else:
             register[val3]=x
-
-
-
         
 def typeB(op:str, r1:str, imm:str):
     
@@ -230,14 +227,14 @@ def typeD(op:str, r1:str, mem_addr:str):
 
     #load
     if(op == "10100"):
-        reset()
         register[val1] = mem[val_mem]
+        reset()
         return
 
     #store
     elif(op == "10101"):
-        reset()
         mem[val_mem] = register[val1]
+        reset()
         return
 
 def typeE(op:str, mem_addr:str):
