@@ -9,7 +9,8 @@ register = [0 for i in range(8)]
 new_pc = -1
 pc = -1
 halted = False
-trace = []
+trace1 = []
+trace2 = []
 
 
 def dec_2_bin(num:float)->str:
@@ -104,7 +105,7 @@ def typeA(op:str, r1:str, r2:str, r3:str):
     elif(op == "10001"):
         reset()
         if register[val1] >= register[val2]:
-            register[val3] = register[val2] - register[val1]
+            register[val3] = register[val1] - register[val2]
         else:
             register[val3] = 0  
             register[7] |= (1 << 3)
@@ -115,6 +116,7 @@ def typeA(op:str, r1:str, r2:str, r3:str):
         register[val3] = register[val2] * register[val1]
 
         if(register[val3] >= 65536):
+            register[val3] %= 65536
             register[7] |= (1 << 3)
 
     #XOR
@@ -129,7 +131,7 @@ def typeA(op:str, r1:str, r2:str, r3:str):
     #OR
     elif(op == "11011"):
         reset()
-        register[val3] = 0
+        temp = 0
         for i in range(16):
             if register[val1]&(1<<i) | register[val2]&(1<<i):
                 register[val3] |= (1<<i)
@@ -137,10 +139,11 @@ def typeA(op:str, r1:str, r2:str, r3:str):
     #AND
     elif(op == "11100"):
         reset()
-        register[val3] = 0
+        temp = 0
         for i in range(16):
             if register[val1]&(1<<i) & register[val2]&(1<<i):
-                register[val3] |= (1<<i)
+                temp |= (1<<i)
+        register[val3] = temp
 
     #ADDF  
     elif(op == "00000"):
@@ -155,19 +158,19 @@ def typeA(op:str, r1:str, r2:str, r3:str):
             register[val3] = 0
             register[7] |= (1 << 3)
         else:
-            register[val3] = dec_2_bin(x)
+            register[val3] = int(dec_2_bin(x), 2)
 
     #SUBF
     elif(op == "00001"):
         reset()
         temp1=cust_bin(register[val1],8)
         temp2=cust_bin(register[val2],8)
-        x=dec_2_bin(bin_2_dec(temp2) - bin_2_dec(temp1))
+        x=dec_2_bin(bin_2_dec(temp1) - bin_2_dec(temp2))
         if(x=="0"):
             register[val3] = 0
             register[7] |= (1 << 3)
         else:
-            register[val3] = x
+            register[val3] = int(x, 2)
         
 def typeB(op:str, r1:str, imm:str):
     
@@ -234,12 +237,14 @@ def typeD(op:str, r1:str, mem_addr:str):
 
     #load
     if(op == "10100"):
+        update_cycledata_mem(val_mem)
         register[val1] = mem[val_mem]
         reset()
         return
 
     #store
     elif(op == "10101"):
+        update_cycledata_mem(val_mem)
         mem[val_mem] = register[val1]
         reset()
         return
@@ -323,13 +328,18 @@ def out_mem():
         print(cust_bin(line, 16))
     return
 
-def update_cycledata(pc:int):  #For q4
-    trace.append(pc)
+def update_cycledata_prog(pc:int):  #For q4
+    trace1.append(pc)
+    return
+
+def update_cycledata_mem(mem:int):  #For q4
+    trace2.append(mem)
     return
 
 def plot_scatter():
-    plt.ylabel('Cycle No.')
-    plt.scatter(trace, [i for i in range(len(trace))])
+    plt.ylabel('Cycle no. ')
+    plt.scatter(trace1, [i for i in range(len(trace1))])
+    plt.scatter(trace2, [i for i in range(len(trace2))])
     plt.show()
     return
 
@@ -344,7 +354,7 @@ def main():
         inst = mem[pc]
         process_inst(inst)
         out_state(pc)
-        update_cycledata(pc)
+        update_cycledata_prog(pc)
         if (new_pc != -1):
             pc = new_pc
             new_pc = -1
